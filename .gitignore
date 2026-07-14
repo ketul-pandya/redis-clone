@@ -1,0 +1,25 @@
+# Build directory
+build/
+
+# VS Code
+.vscode/
+
+# macOS
+.DS_Store
+
+# Logs
+logs/*.log
+
+# Binary files
+*.o
+*.out
+*.exe
+
+# CMake
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# Persistence data (optional)
+data/dump.rdb
