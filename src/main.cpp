@@ -24,7 +24,7 @@ int main()
 
         getline(cin,input);
 
-        if(input=="EXIT")
+        if(input=="EXIT" || input=="exit")
             break;
 
         vector<string> tokens = parser.parse(input);
