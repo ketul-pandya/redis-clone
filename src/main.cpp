@@ -1,5 +1,8 @@
 #include <iostream>
+
 #include "storage/DataStore.h"
+#include "commands/CommandParser.h"
+#include "commands/CommandExecutor.h"
 
 using namespace std;
 
@@ -7,29 +10,27 @@ int main()
 {
     DataStore db;
 
-    db.set("name", "Ketul");
-    db.set("college", "DEPSTAR");
+    CommandParser parser;
 
-    string value;
+    CommandExecutor executor(db);
 
-    cout << "Before DELETE\n";
+    string input;
 
-    if(db.get("name", value))
-        cout << "Name : " << value << endl;
+    cout<<"Redis Clone v1.0\n";
 
-    cout << "\nDeleting 'name'...\n";
+    while(true)
+    {
+        cout<<"redis> ";
 
-    if(db.del("name"))
-        cout << "Deleted successfully\n";
-    else
-        cout << "Key not found\n";
+        getline(cin,input);
 
-    cout << "\nAfter DELETE\n";
+        if(input=="EXIT")
+            break;
 
-    if(db.get("name", value))
-        cout << value << endl;
-    else
-        cout << "Name not found\n";
+        vector<string> tokens = parser.parse(input);
 
-    return 0;
+        executor.execute(tokens);
+    }
+
+    cout<<"Goodbye!\n";
 }

@@ -25,3 +25,30 @@ bool DataStore::del(const string& key)
 {
     return store_.erase(key) > 0;
 }
+
+bool DataStore::exists(const string& key) const
+{
+    return store_.find(key) != store_.end();
+}
+
+size_t DataStore::size() const
+{
+    return store_.size();
+}
+
+vector<string> DataStore::keys() const
+{
+    vector<string> result;
+
+    for (const auto& pair : store_)
+    {
+        result.push_back(pair.first);
+    }
+
+    return result;
+}
+
+void DataStore::clear()
+{
+    store_.clear();
+}

@@ -8,4 +8,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_executable(redis-clone
     src/main.cpp
     src/storage/DataStore.cpp
+    src/commands/CommandParser.cpp
+    src/commands/CommandExecutor.cpp
 )
