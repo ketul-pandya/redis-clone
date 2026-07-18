@@ -1,36 +1,9 @@
-#include <iostream>
-
-#include "storage/DataStore.h"
-#include "commands/CommandParser.h"
-#include "commands/CommandExecutor.h"
-
-using namespace std;
+#include "server/Server.h"
 
 int main()
 {
-    DataStore db;
+    Server server;
+    server.start();
 
-    CommandParser parser;
-
-    CommandExecutor executor(db);
-
-    string input;
-
-    cout<<"Redis Clone v1.0\n";
-
-    while(true)
-    {
-        cout<<"redis> ";
-
-        getline(cin,input);
-
-        if(input=="EXIT" || input=="exit")
-            break;
-
-        vector<string> tokens = parser.parse(input);
-
-        executor.execute(tokens);
-    }
-
-    cout<<"Goodbye!\n";
+    return 0;
 }

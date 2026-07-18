@@ -9,111 +9,146 @@ CommandExecutor::CommandExecutor(DataStore& datastore)
 {
 }
 
-void CommandExecutor::execute(const vector<string>& tokens)
+string CommandExecutor::execute(const vector<string>& tokens)
 {
     if(tokens.empty())
-        return;
+        return "";
+
+    // Reconstruct the complete command
+    string fullCommand;
+
+    for(const auto& token : tokens)
+    {
+        if(!fullCommand.empty())
+            fullCommand += " ";
+
+        fullCommand += token;
+    }
+
+    logger.log(fullCommand);
 
     string command = tokens[0];
 
     if(command=="SET")
     {
         if(tokens.size()!=3)
-        {
-            cout<<"Usage: SET <key> <value>\n";
-            return;
-        }
+            return "Usage: SET <key> <value>";
 
         db.set(tokens[1],tokens[2]);
-
-        cout<<"OK\n";
+        return "OK";
     }
 
     else if(command=="GET")
     {
         if(tokens.size()!=2)
-        {
-            cout<<"Usage: GET <key>\n";
-            return;
-        }
+            return "Usage: GET <key>";
 
         string value;
 
         if(db.get(tokens[1],value))
-            cout<<value<<endl;
-        else
-            cout<<"(nil)\n";
+            return value;
+
+        return "(nil)";
     }
 
     else if(command=="DEL")
     {
         if(tokens.size()!=2)
-        {
-            cout<<"Usage: DEL <key>\n";
-            return;
-        }
+            return "Usage: DEL <key>";
 
         if(db.del(tokens[1]))
-            cout<<"OK\n";
-        else
-            cout<<"Key not found\n";
+            return "OK";
+
+        return "Key not found";
     }
 
     else if(command=="EXISTS")
     {
         if(tokens.size()!=2)
-        {
-            cout<<"Usage: EXISTS <key>\n";
-            return;
-        }
+            return "Usage: EXISTS <key>";
 
-        cout<<(db.exists(tokens[1]) ? "YES" : "NO")<<endl;
+        return db.exists(tokens[1]) ? "YES" : "NO";
     }
 
     else if(command=="SIZE")
     {
-        cout<<db.size()<<endl;
+        return to_string(db.size());
     }
 
     else if(command=="KEYS")
     {
-        vector<string> allKeys=db.keys();
+        vector<string> allKeys = db.keys();
 
         if(allKeys.empty())
-        {
-            cout<<"Database Empty\n";
-            return;
-        }
+            return "Database Empty";
 
-        for(const auto &key:allKeys)
-        {
-            cout<<key<<endl;
-        }
+        string response;
+
+        for(const auto &key : allKeys)
+            response += key + "\n";
+
+        return response;
     }
 
     else if(command=="CLEAR")
     {
         db.clear();
-
-        cout<<"Database Cleared\n";
+        return "Database Cleared";
     }
 
     else if(command=="HELP")
     {
-        cout<<"\nAvailable Commands\n";
+        return
+        "SET <key> <value>\n"
+        "GET <key>\n"
+        "DEL <key>\n"
+        "EXISTS <key>\n"
+        "EXPIRE <key> <seconds>\n"
+        "TTL <key>\n"
+        "KEYS\n"
+        "SIZE\n"
+        "CLEAR\n"
+        "HELP\n"
+        "EXIT";
+    }
 
-        cout<<"SET <key> <value>\n";
-        cout<<"GET <key>\n";
-        cout<<"DEL <key>\n";
-        cout<<"EXISTS <key>\n";
-        cout<<"KEYS\n";
-        cout<<"SIZE\n";
-        cout<<"CLEAR\n";
-        cout<<"HELP\n";
-        cout<<"EXIT\n";
-    }
-    else
+    else if(command=="SAVE")
     {
-        cout<<"Unknown Command\n";
+        if(db.saveToFile("database.txt"))
+            return "Database Saved";
+
+        return "Save Failed";
     }
+
+    else if(command=="LOAD")
+    {
+        if(db.loadFromFile("database.txt"))
+            return "Database Loaded";
+
+        return "Load Failed";
+    }
+
+else if(command=="EXPIRE")
+{
+    if(tokens.size()!=3)
+        return "Usage: EXPIRE <key> <seconds>";
+
+    int seconds = stoi(tokens[2]);
+
+    if(db.expire(tokens[1], seconds))
+        return "OK";
+
+    return "Key not found";
+}
+
+else if(command=="TTL")
+{
+    if(tokens.size()!=2)
+        return "Usage: TTL <key>";
+
+    return to_string(db.ttl(tokens[1]));
+}
+
+    return "Unknown Command";
+
 }

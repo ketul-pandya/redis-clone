@@ -10,4 +10,6 @@ add_executable(redis-clone
     src/storage/DataStore.cpp
     src/commands/CommandParser.cpp
     src/commands/CommandExecutor.cpp
+    src/server/Server.cpp
+    src/logger/Logger.cpp
 )
