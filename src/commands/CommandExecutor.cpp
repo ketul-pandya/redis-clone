@@ -149,6 +149,10 @@ else if(command=="TTL")
     return to_string(db.ttl(tokens[1]));
 }
 
+else if(command == "COMMAND")
+{
+    return "OK";
+}
     return "Unknown Command";
 
 }

@@ -5,13 +5,15 @@
 using namespace std;
 
 bool DataStore::set(const string& key, const string& value)
-{
+{   
+    lock_guard<mutex> lock(dataMutex);
     store_[key] = value;
     return true;
 }
 
 bool DataStore::get(const string& key, string& value)
-{
+{   
+    lock_guard<mutex> lock(dataMutex);
     if (isExpired(key))
     {
         return false;
@@ -29,13 +31,15 @@ bool DataStore::get(const string& key, string& value)
 }
 
 bool DataStore::del(const string& key)
-{
+{   
+    lock_guard<mutex> lock(dataMutex);
     expiry_.erase(key);
     return store_.erase(key) > 0;
 }
 
 bool DataStore::exists(const string& key)
-{
+{   
+    lock_guard<mutex> lock(dataMutex);
     if (isExpired(key))
     {
         return false;
@@ -45,7 +49,8 @@ bool DataStore::exists(const string& key)
 }
 
 size_t DataStore::size() const
-{
+{   
+    lock_guard<mutex> lock(dataMutex);
     size_t count = 0;
 
     for (const auto& pair : store_)
@@ -62,7 +67,8 @@ size_t DataStore::size() const
 }
 
 vector<string> DataStore::keys() const
-{
+{   
+    lock_guard<mutex> lock(dataMutex);
     vector<string> result;
 
     for (const auto& pair : store_)
@@ -79,13 +85,15 @@ vector<string> DataStore::keys() const
 }
 
 void DataStore::clear()
-{
+{   
+    lock_guard<mutex> lock(dataMutex);
     store_.clear();
     expiry_.clear();
 }
 
 bool DataStore::saveToFile(const string& filename)
-{
+{   
+    lock_guard<mutex> lock(dataMutex);
     ofstream outFile(filename);
 
     if (!outFile.is_open())
@@ -102,7 +110,8 @@ bool DataStore::saveToFile(const string& filename)
 }
 
 bool DataStore::loadFromFile(const string& filename)
-{
+{   
+    lock_guard<mutex> lock(dataMutex);
     ifstream inFile(filename);
 
     if (!inFile.is_open())
@@ -145,10 +154,13 @@ bool DataStore::isExpired(const string& key)
 
 bool DataStore::expire(const string& key, int seconds)
 {
-    if (!exists(key))
-    {
+    lock_guard<mutex> lock(dataMutex);
+
+    if (isExpired(key))
         return false;
-    }
+
+    if (store_.find(key) == store_.end())
+        return false;
 
     expiry_[key] = time(nullptr) + seconds;
     return true;
@@ -156,17 +168,18 @@ bool DataStore::expire(const string& key, int seconds)
 
 int DataStore::ttl(const string& key)
 {
-    if (!exists(key))
-    {
-        return -2;      // Key doesn't exist
-    }
+    lock_guard<mutex> lock(dataMutex);
+
+    if (isExpired(key))
+        return -2;
+
+    if (store_.find(key) == store_.end())
+        return -2;
 
     auto it = expiry_.find(key);
 
     if (it == expiry_.end())
-    {
-        return -1;      // No expiry
-    }
+        return -1;
 
     return static_cast<int>(it->second - time(nullptr));
 }

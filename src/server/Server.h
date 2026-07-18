@@ -16,4 +16,6 @@ private:
     DataStore dataStore;
     CommandParser parser;
     CommandExecutor executor;
+    
+    void handleClient(int clientSocket);
 };

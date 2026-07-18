@@ -2,6 +2,7 @@
 
 #include <bits/stdc++.h>
 #include <ctime>
+#include <mutex>
 
 using namespace std;
 
@@ -39,4 +40,6 @@ private:
 
     // Checks if a key has expired and removes it if needed
     bool isExpired(const string& key);
+
+    mutable std::mutex dataMutex;
 };

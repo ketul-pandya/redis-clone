@@ -1,27 +1,62 @@
 #include "CommandParser.h"
-#include <algorithm>
-#include <cctype>
+
 #include <sstream>
 
 using namespace std;
 
-vector<string> CommandParser::parse(const string& input)
+vector<string> CommandParser::parse(const string &command)
 {
-    stringstream ss(input);
+    // RESP command
+    if (!command.empty() && command[0] == '*')
+    {
+        return parseRESP(command);
+    }
 
+    // Plain text command
+    vector<string> tokens;
+    string token;
+
+    stringstream ss(command);
+
+    while (ss >> token)
+    {
+        tokens.push_back(token);
+    }
+
+    return tokens;
+}
+
+vector<string> CommandParser::parseRESP(const string &command)
+{
     vector<string> tokens;
 
-    string word;
+    stringstream ss(command);
 
-    while(ss >> word)
+    string line;
+
+    // Read first line
+    getline(ss, line);
+
+    // Example:
+    // *3
+
+    while (getline(ss, line))
     {
-        if(tokens.empty())
+        if (!line.empty() && line.back() == '\r')
         {
-            transform(word.begin(),word.end(),
-                    word.begin(),::toupper);
+            line.pop_back();
         }
 
-        tokens.push_back(word);
+        if (line.empty())
+            continue;
+
+        // Skip bulk length
+        if (line[0] == '$')
+        {
+            continue;
+        }
+
+        tokens.push_back(line);
     }
 
     return tokens;

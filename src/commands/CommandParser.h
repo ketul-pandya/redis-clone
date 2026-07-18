@@ -8,5 +8,8 @@ using namespace std;
 class CommandParser
 {
 public:
-    vector<string> parse(const string& input);
+    vector<string> parse(const string &command);
+
+private:
+    vector<string> parseRESP(const string &command);
 };
